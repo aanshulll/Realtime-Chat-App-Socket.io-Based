@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hi Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+</head>
+
+<body class="bg-gray-900 text-white transition-colors duration-300">
+  <!-- Header -->
+  <div class="flex items-center text-green-500   p-4 shadow-md bg-gray-800">
+    <h1 class="text-2xl    font-('Quicksand', sans-serif) ">WHAT'S UP </h1>
+    <!-- Theme toggle removed -->
+  </div>
+
+  <!-- Chat Container -->
+  <div class="flex flex-col h-[90vh] max-w-2xl mx-auto p-4 space-y-4">
+    <div id="messageContainer" class="flex-1 overflow-y-auto bg-gray-700 p-4 rounded shadow-inner space-y-3 no-scrollbar ">
+      <!-- Messages go here -->
+    </div>
+
+    <!-- Input Field -->
+    <div class="flex gap-2 items-center">
+      <input type="text" id="userInput" placeholder="Type your message..."
+        class="flex-1 p-3 rounded-lg border border-gray-600 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white" />
+      <button id="sendButton" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+    const messageContainer = document.getElementById('messageContainer');
+
+    const senderAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=You';
+    const receiverAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Bot';
+
+    // Sound effects
+    const messageSound = new Audio('/music.mp3');
+    const responderSound = new Audio('/responder.mp3'); // Add your responder sound file
+
+    // track last sent message text
+    let lastSentMessage = '';
+
+    sendButton.addEventListener('click', () => {
+      const message = userInput.value.trim();
+      if (message !== '') {
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        lastSentMessage = message;
+        appendMessage(message, 'sender', timestamp);
+        socket.emit('chat message', message); // only text sent
+        userInput.value = '';
+        // Play sound on send
+        messageSound.currentTime = 0;
+        messageSound.play();
+      }
+    });
+
+    socket.on('chat message', (msg) => {
+      // prevent showing our own message twice
+      if (msg === lastSentMessage) {
+        lastSentMessage = ''; // reset so next message can come
+        return;
+      }
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      appendMessage(msg, 'receiver', timestamp);
+      // Play responder sound for incoming messages
+      responderSound.currentTime = 0;
+      responderSound.play();
+    });
+
+    function appendMessage(text, role, time) {
+      const messageEl = document.createElement('div');
+      messageEl.className = `flex items-end ${role === 'sender' ? 'justify-end' : 'justify-start'}`;
+
+      messageEl.innerHTML = `
+        ${role === 'receiver' ? `<img src="${receiverAvatar}" class="w-8 h-8 rounded-full mr-2">` : ''}
+        <div class="max-w-xs px-4 py-2 rounded-lg shadow 
+          ${role === 'sender' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-600 text-white rounded-bl-none'}">
+          <p class="break-words">${text}</p>
+          <p class="text-xs text-right mt-1 opacity-70">${time}</p>
+        </div>
+        ${role === 'sender' ? `<img src="${senderAvatar}" class="w-8 h-8 rounded-full ml-2">` : ''}
+      `;
+      messageContainer.appendChild(messageEl);
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  </script>
+
+</body>
+
+</html>
