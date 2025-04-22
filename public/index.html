@@ -51,48 +51,61 @@
     const userInput = document.getElementById('userInput');
     const sendButton = document.getElementById('sendButton');
     const messageContainer = document.getElementById('messageContainer');
-
+  
     const senderAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=You';
     const receiverAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Bot';
-
-    // Sound effects
+  
     const messageSound = new Audio('/music.mp3');
-    const responderSound = new Audio('/responder.mp3'); // Add your responder sound file
-
-    // track last sent message text
+    const responderSound = new Audio('/responder.mp3');
+  
     let lastSentMessage = '';
-
+  
+    // Ask notification permission
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        console.log("Notification permission:", permission);
+      });
+    }
+  
     sendButton.addEventListener('click', () => {
       const message = userInput.value.trim();
       if (message !== '') {
         const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         lastSentMessage = message;
         appendMessage(message, 'sender', timestamp);
-        socket.emit('chat message', message); // only text sent
+        socket.emit('chat message', message);
         userInput.value = '';
-        // Play sound on send
         messageSound.currentTime = 0;
         messageSound.play();
       }
     });
-
+  
     socket.on('chat message', (msg) => {
-      // prevent showing our own message twice
       if (msg === lastSentMessage) {
-        lastSentMessage = ''; // reset so next message can come
+        lastSentMessage = '';
         return;
       }
+  
       const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       appendMessage(msg, 'receiver', timestamp);
-      // Play responder sound for incoming messages
+  
+      // Play responder sound
       responderSound.currentTime = 0;
       responderSound.play();
+  
+      // Show browser notification
+      if (Notification.permission === "granted" && document.hidden) {
+        new Notification("📩 New Message", {
+          body: msg,
+          icon: "/ico.png" // Change to your preferred icon
+        });
+      }
     });
-
+  
     function appendMessage(text, role, time) {
       const messageEl = document.createElement('div');
       messageEl.className = `flex items-end ${role === 'sender' ? 'justify-end' : 'justify-start'}`;
-
+  
       messageEl.innerHTML = `
         ${role === 'receiver' ? `<img src="${receiverAvatar}" class="w-8 h-8 rounded-full mr-2">` : ''}
         <div class="max-w-xs px-4 py-2 rounded-lg shadow 
@@ -106,6 +119,7 @@
       messageContainer.scrollTop = messageContainer.scrollHeight;
     }
   </script>
+  
 
 </body>
 
