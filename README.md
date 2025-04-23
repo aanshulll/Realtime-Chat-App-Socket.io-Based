@@ -10,5 +10,5 @@ This is a real-time chat application built using HTML, CSS, JavaScript, Node.js,
 ## Run Locally
 1. Clone the repo
 2. Run `npm install`
-3. Start server with `node app.js`
+3. Start server with `node run dev`
 4. Visit `http://localhost:3000`
