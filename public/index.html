@@ -5,37 +5,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>What's Up</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="icon" type="image/x-icon" href="ico.png">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-    };
+    tailwind.config = { darkMode: 'class' };
   </script>
 </head>
 
 <body class="bg-gray-900 text-white transition-colors duration-300">
   <!-- Header -->
-  <div class="fixed top-0 left-0 w-full flex items-center justify-center text-blue-500 z-20 p-4 bg-gray-900 shadow"
-       style="max-width:100vw;">
+  <div class="fixed top-0 left-0 w-full flex items-center justify-center text-blue-500 z-20 p-4 bg-gray-900 shadow" style="max-width:100vw;">
     <div class="flex items-center max-w-2xl w-full mx-auto">
       <img class="h-12 mx-5" src="ico.png" alt="">
       <h1 class="text-2xl font-bolder" style="font-family: 'Quicksand', sans-serif;">What's Up</h1>
     </div>
-    <!-- Theme toggle removed -->
   </div>
 
   <!-- Chat Container -->
-  <div class="flex flex-col max-w-2xl mx-auto p-4 space-y-4"
-       style="padding-top:5.5rem; height:90vh;">
-    <div id="messageContainer" class="flex-1 overflow-y-auto bg-gray-700 p-4 rounded shadow-inner space-y-3 no-scrollbar ">
+  <div class="flex flex-col max-w-2xl mx-auto p-4 space-y-4" style="padding-top:5.5rem; height:90vh;">
+    <div id="messageContainer" class="flex-1 overflow-y-auto bg-gray-700 p-4 rounded shadow-inner space-y-3 no-scrollbar">
       <!-- Messages go here -->
     </div>
-
-    <!-- Input Field -->
     <div class="flex gap-2 items-center">
       <input type="text" id="userInput" placeholder="Type your message..."
         class="flex-1 p-3 rounded-lg border border-gray-600 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white" />
@@ -46,81 +37,6 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    const userInput = document.getElementById('userInput');
-    const sendButton = document.getElementById('sendButton');
-    const messageContainer = document.getElementById('messageContainer');
-  
-    const senderAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=You';
-    const receiverAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Bot';
-  
-    const messageSound = new Audio('/music.mp3');
-    const responderSound = new Audio('/responder.mp3');
-  
-    let lastSentMessage = '';
-  
-    // Ask notification permission
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission().then(permission => {
-        console.log("Notification permission:", permission);
-      });
-    }
-  
-    sendButton.addEventListener('click', () => {
-      const message = userInput.value.trim();
-      if (message !== '') {
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        lastSentMessage = message;
-        appendMessage(message, 'sender', timestamp);
-        socket.emit('chat message', message);
-        userInput.value = '';
-        messageSound.currentTime = 0;
-        messageSound.play();
-      }
-    });
-  
-    socket.on('chat message', (msg) => {
-      if (msg === lastSentMessage) {
-        lastSentMessage = '';
-        return;
-      }
-  
-      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      appendMessage(msg, 'receiver', timestamp);
-  
-      // Play responder sound
-      responderSound.currentTime = 0;
-      responderSound.play();
-  
-      // Show browser notification
-      if (Notification.permission === "granted" && document.hidden) {
-        new Notification("📩 New Message", {
-          body: msg,
-          icon: "/ico.png" // Change to your preferred icon
-        });
-      }
-    });
-  
-    function appendMessage(text, role, time) {
-      const messageEl = document.createElement('div');
-      messageEl.className = `flex items-end ${role === 'sender' ? 'justify-end' : 'justify-start'}`;
-  
-      messageEl.innerHTML = `
-        ${role === 'receiver' ? `<img src="${receiverAvatar}" class="w-8 h-8 rounded-full mr-2">` : ''}
-        <div class="max-w-xs px-4 py-2 rounded-lg shadow 
-          ${role === 'sender' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-600 text-white rounded-bl-none'}">
-          <p class="break-words">${text}</p>
-          <p class="text-xs text-right mt-1 opacity-70">${time}</p>
-        </div>
-        ${role === 'sender' ? `<img src="${senderAvatar}" class="w-8 h-8 rounded-full ml-2">` : ''}
-      `;
-      messageContainer.appendChild(messageEl);
-      messageContainer.scrollTop = messageContainer.scrollHeight;
-    }
-  </script>
-  
-
+  <script src="script.js"></script>
 </body>
-
 </html>
