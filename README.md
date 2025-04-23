@@ -4,7 +4,7 @@ This is a real-time chat application built using HTML, CSS, JavaScript, Node.js,
 
 ## Features
 - Real-time message exchange using WebSockets
-- Node.js + Express + Socket.io
+- Node.js + Express + Socket.io + Notification API
 - Lightweight frontend using HTML/CSS
 
 ## Run Locally
