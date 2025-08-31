@@ -11,11 +11,34 @@
   <script>
     tailwind.config = { darkMode: 'class' };
   </script>
+  <style>
+    /* Custom scrollbar for modal */
+    #welcomeModal .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #809bc7a2 #0000003e;
+    }
+
+    #welcomeModal .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      background: #222;
+      border-radius: 4px;
+    }
+
+    #welcomeModal .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #3b82f6;
+      border-radius: 4px;
+    }
+
+    #welcomeModal .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #2563eb;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-900 text-white transition-colors duration-300">
   <!-- Header -->
-  <div class="fixed top-0 left-0 w-full flex items-center justify-center text-blue-500 z-20 p-4 bg-gray-900 shadow" style="max-width:100vw;">
+  <div class="fixed top-0 left-0 w-full flex items-center justify-center text-blue-500 z-20 p-4 bg-gray-900 shadow"
+    style="max-width:100vw;">
     <div class="flex items-center max-w-2xl w-full mx-auto">
       <img class="h-12 mx-5" src="ico.png" alt="">
       <h1 class="text-2xl font-bolder" style="font-family: 'Quicksand', sans-serif;">What's Up</h1>
@@ -24,19 +47,87 @@
 
   <!-- Chat Container -->
   <div class="flex flex-col max-w-2xl mx-auto p-4 space-y-4" style="padding-top:5.5rem; height:90vh;">
-    <div id="messageContainer" class="flex-1 overflow-y-auto bg-gray-700 p-4 rounded shadow-inner space-y-3 no-scrollbar">
+    <div id="messageContainer"
+      class="flex-1 overflow-y-auto bg-gray-700 p-4 rounded shadow-inner space-y-3 no-scrollbar">
       <!-- Messages go here -->
     </div>
     <div class="flex gap-2 items-center">
       <input type="text" id="userInput" placeholder="Type your message..."
         class="flex-1 p-3 rounded-lg border border-gray-600 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white" />
-      <button id="sendButton" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition">
+      <button id="sendButton"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition">
         Send
       </button>
     </div>
   </div>
 
+  <!-- Modal Popup -->
+  <div id="welcomeModal"
+    class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-xl p-8 shadow-2xl text-center max-w-md w-full border border-blue-600 relative
+              max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex flex-col items-center">
+        <img src="ico.png" alt="App Icon" class="w-16 h-16 mb-3 drop-shadow-lg">
+        <h2 class="text-2xl font-bold mb-2 text-blue-400">Welcome to What's Up!</h2>
+        <p class="mb-4 text-gray-300">Enjoy chatting in real time. 🚀</p>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
+        <h3 class="text-2xl font-semibold mb-2 text-blue-300 flex items-center justify-center gap-2">
+        
+          How To Use This App
+        </h3>
+        <ol class="text-left text-gray-200 list-disc list-inside space-y-1">
+          <li class="text-sm">Share the link below with friends to join the chat.</li>
+          <li class="text-sm">Or scan the QR code to access instantly.</li>
+          <li class="text-sm">Start messaging and enjoy real-time conversations!</li>
+        </ol>
+      </div>
+      <div class="mb-4">
+        <p class="mb-1 text-gray-300 font-medium">Share this link:</p>
+        <div class="flex items-center justify-center gap-2">
+          <a href="https://whatsup-vi9i.onrender.com/" target="_blank"
+            class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm font-mono">
+            https://whatsup-vi9i.onrender.com/
+          </a>
+          <button onclick="navigator.clipboard.writeText('https://whatsup-vi9i.onrender.com/')" class="text-blue-400 hover:text-blue-600"
+            title="Copy Link">
+            <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-7 4h8a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2z">
+              </path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="mb-6">
+        <p class="mb-2 text-gray-300 font-medium">Or scan this QR code:</p>
+        <img src="qrchimpX256.png" alt="QR CODE"
+          class="mx-auto rounded-lg border border-blue-500 shadow-md w-32 h-32">
+      </div>
+      <button id="closeModalBtn"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition">
+        Get Started
+      </button>
+      <span class="absolute top-3 right-3">
+        <button onclick="document.getElementById('welcomeModal').style.display='none'"
+          class="text-gray-400 hover:text-red-400 text-xl" title="Close">&times;</button>
+      </span>
+    </div>
+  </div>
+
+  <script>
+    // Show modal on page load
+    window.onload = function () {
+      document.getElementById('welcomeModal').style.display = 'flex';
+    };
+    // Close modal on button click
+    document.getElementById('closeModalBtn').onclick = function () {
+      document.getElementById('welcomeModal').style.display = 'none';
+    };
+  </script>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
+
 </html>
