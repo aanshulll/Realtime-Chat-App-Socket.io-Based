@@ -17,12 +17,28 @@ if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
 
+// Load messages from localStorage on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const savedMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+  savedMessages.forEach(msg => {
+    appendMessage(msg.text, msg.role, msg.time);
+  });
+});
+
+// Helper to save message to localStorage
+function saveMessageToLocalStorage(text, role, time) {
+  const messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+  messages.push({ text, role, time });
+  localStorage.setItem('chatMessages', JSON.stringify(messages));
+}
+
 sendButton.addEventListener('click', () => {
   const message = userInput.value.trim();
   if (message !== '') {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     lastSentMessage = message;
     appendMessage(message, 'sender', timestamp);
+    saveMessageToLocalStorage(message, 'sender', timestamp); // Save sent message
     socket.emit('chat message', message);
     userInput.value = '';
     messageSound.currentTime = 0;
@@ -37,6 +53,7 @@ socket.on('chat message', (msg) => {
   }
   const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   appendMessage(msg, 'receiver', timestamp);
+  saveMessageToLocalStorage(msg, 'receiver', timestamp); // Save received message
   responderSound.currentTime = 0;
   responderSound.play();
   if (Notification.permission === "granted" && document.hidden) {
